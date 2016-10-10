@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">
+		    	图书搜索
+		    </h1>
+			<a class="mui-icon mui-icon-search mui-pull-right" id="search"></a>
+		</header>
+		<div class="mui-content">
+			<div class="mui-input-row mui-search">
+				<input type="search" class="mui-input-clear" placeholder="" id="q" />
+			</div>
+			<ul class="mui-table-view" id="content">
+
+			</ul>
+		</div>
+		<script src="js/mui.min.js"></script>
+		<script src="js/template.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/html" id="searchlist">
+			{{each books}}
+			<li class="mui-table-view-cell">
+				<a class="mui-navigate-right" id="{{$value.id}}">
+					{{$index+1}} {{$value.title}}
+				</a>
+			</li>
+			{{/each}}
+		</script>
+		<script type="text/javascript" charset="utf-8">
+			mui.init();
+			mui.plusReady(function() {
+				mui.ajax("https://api.douban.com/v2/book/search?tag=hot&count=5&fields=id,title,author", {
+					dataType: "json",
+					timeout: 5000,
+					type: "get",
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					success: function(data) {
+						console.log(JSON.stringify(data));
+						var html = template('searchlist', data);
+						document.getElementById('content').innerHTML = html;
+					},
+					error: function(xhr, type, errorThrown) {
+						console.log(type);
+					}
+				});
+				document.getElementById("search").addEventListener("tap", function() {
+					var q = document.getElementById("q").value;
+					if(q.length <= 0) {
+						return false;
+					} else {
+						mui.ajax("https://api.douban.com/v2/book/search?q=" + q + "&fields=id,title,author", {
+							dataType: "json",
+							timeout: 5000,
+							type: "get",
+							headers: {
+								'Content-Type': 'application/json'
+							},
+							success: function(data) {
+								//								console.log(JSON.stringify(data));
+								var html = template('searchlist', data);
+								document.getElementById('content').innerHTML = html;
+							},
+							error: function(xhr, type, errorThrown) {
+								if(type == "error") {
+									mui.toast("出错啦！");
+								} else if(type == "timeout") {
+									mui.toast("连接超时，请重试！");
+								}
+							}
+						})
+					}
+				});
+
+				mui("#content").on("tap", ".mui-navigate-right", function() {
+					var bookid = this.getAttribute("id");
+					mui.openWindow({
+						url: "bookinfo.html",
+						id: "bookinfo",
+						extras: {
+							bookid: bookid
+						},
+						createNew: false, //是否重复创建同样id的webview，默认为false:不重复创建，直接显示
+						show: {
+							autoShow: true, //页面loaded事件发生后自动显示，默认为true
+							aniShow: "slide-in-right", //页面显示动画，默认为”slide-in-right“；
+							duration: 100 //页面动画持续时间，Android平台默认100毫秒，iOS平台默认200毫秒；
+						},
+						waiting: {
+							autoShow: true, //自动显示等待框，默认为true
+							title: '正在加载...' //等待对话框上显示的提示内容
+						}
+					})
+				})
+
+			})
+		</script>
+
+	</body>
+
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title></title>
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<style>
+			.mui-card {
+				text-align: center;
+				height: 2.9rem;
+			}
+		</style>
+		<script>
+			new function() {
+				var _self = this;
+				_self.width = 640; //设置默认最大宽度
+				_self.fontSize = 100; //默认字体大小
+				_self.widthProportion = function() {
+					var p = (document.body && document.body.clientWidthdocument.getElementsByTagName("html")[0].offsetWidth) / _self.width;
+					return p > 1 ? 1 : p < 0.5 ? 0.5 : p;
+				};
+				_self.changePage = function() {
+					document.getElementsByTagName("html")[0].setAttribute("style", "font-size:" + _self.widthProportion() * _self.fontSize + "px !important");
+				}
+				_self.changePage();
+				window.addEventListener("resize", function() {
+					_self.changePage();
+				}, false);
+			};
+		</script>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<h1 class="mui-title">豆瓣读书</h1>
+			<a class="mui-icon mui-icon-search mui-pull-right" id="search"></a>
+		</header>
+		<div class="mui-content mui-row" id="content">
+
+		</div>
+		<script src="js/mui.min.js"></script>
+		<script src="js/template.js" type="text/javascript" charset="utf-8"></script>
+		<script id="template" type="text/html">
+			{{each books}}
+			<div class="mui-col-xs-4 mui-col-sm-4">
+				<div class="mui-card" id="{{$value.id}}">
+					<div class="mui-card-content">
+						<img src="{{$value.image}}" alt="{{$value.title}}" />
+					</div>
+				</div>
+			</div>
+			{{/each}}
+		</script>
+		<script type="text/javascript" charset="utf-8">
+			mui.init();
+			mui.plusReady(function() {
+				var wifi=plus.networkinfo.getCurrentType();
+				if(wifi==1){
+					mui.toast("当前设备未连接到网络，请检查您的网络！");
+				}else if(wifi!=3&&wifi!=1){
+					mui.toast("您当前使用的是移动数据流量，建议您在WIFI网络下使用！");
+				}
+				mui.ajax("https://api.douban.com/v2/book/search?tag=hot&fields=id,title,image", {
+					dataType: "json",
+					timeout: 5000,
+					type: "get",
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					success: function(data) {
+//						console.log(JSON.stringify(data.books));
+						var html = template('template', data);
+						document.getElementById('content').innerHTML = html;
+					},
+					error: function(xhr, type, errorThrown) {
+						if(type == "error") {
+							mui.toast("出错啦！");
+						} else if(type == "timeout") {
+							mui.toast("连接超时，请重试！");
+						}
+					}
+				});
+
+				document.getElementById("search").addEventListener("tap", function() {
+					mui.openWindow("search.html", "search", {});
+				});
+
+				mui(".mui-content").on("tap", ".mui-card", function() {
+					var bookid = this.getAttribute("id");
+					mui.openWindow({
+						url: "bookinfo.html",
+						id: "bookinfo",
+						extras: {
+							bookid: bookid
+						},
+						createNew: false, //是否重复创建同样id的webview，默认为false:不重复创建，直接显示
+						show: {
+							autoShow: true, //页面loaded事件发生后自动显示，默认为true
+							aniShow: "slide-in-right", //页面显示动画，默认为”slide-in-right“；
+							duration: 100 //页面动画持续时间，Android平台默认100毫秒，iOS平台默认200毫秒；
+						},
+						waiting: {
+							autoShow: true, //自动显示等待框，默认为true
+							title: '正在加载...' //等待对话框上显示的提示内容
+						}
+					})
+				})
+			})
+		</script>
+
+	</body>
+
+</html>

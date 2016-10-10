@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+	</head>
+	<style type="text/css">
+		.bookimg {
+			width: 40%;
+			float: left;
+		}
+		
+		.bookimg img {
+			border-radius: 5px;
+		}
+		
+		.bookinfolist {
+			width: 60%;
+			float: left;
+		}
+	</style>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">图书详情</h1>
+		</header>
+		<div class="mui-content" id="content">
+
+		</div>
+		<script src="js/mui.min.js"></script>
+		<script src="js/template.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/html" id="bookinfo">
+
+			<div class="mui-card">
+				<div class="mui-card-header">
+					<div class="bookimg">
+						<img src="{{image}}" />
+					</div>
+					<div class="bookinfolist">
+						<h4 id="bookname">{{title}}</h3>
+						<p>作者：{{each author}}{{$value}}{{/each}}</p>
+						<p>出版时间 :{{pubdate}}</p>
+						<p>出版社：{{publisher}}</p>
+						<p>总页数：{{pages}}</p>
+						<p>价格：{{price}}</p>
+					</div>
+				</div>
+				<div class="mui-card-content" >
+					<div class="mui-card-content-inner">
+						<h3>作者简介</h3>
+						<hr />
+						{{author_intro}}
+					</div>
+					<div class="mui-card-content-inner">
+						<h3>内容简介</h3>
+						<hr />
+						{{summary}}
+					</div>
+				</div>
+			</div>
+			
+		</script>
+		<script type="text/javascript" charset="utf-8">
+			mui.init();
+			mui.plusReady(function() {				
+				var	bookid=plus.webview.currentWebview().bookid;//获取书籍id
+				//请求书籍详细信息
+				mui.ajax("https://api.douban.com/v2/book/"+bookid+"?fields=id,title,image,author,publisher,pubdate,price,pages,author_intro,summary",{
+					dataType: "json",
+					timeout: 5000,
+					type: "get",
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					success: function(data) {
+//						console.log(JSON.stringify(data));
+						var html = template('bookinfo', data);
+						document.getElementById('content').innerHTML = html;
+					},
+					error: function(xhr, type, errorThrown) {
+						if(type=="error"){
+									mui.toast("出错啦！");
+								}else if(type=="timeout"){
+									mui.toast("连接超时，请重试！");
+								}
+					}
+				});
+			})
+
+		</script>
+	</body>
+
+</html>

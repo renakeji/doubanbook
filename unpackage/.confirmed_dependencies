@@ -1,0 +1,56 @@
+{
+  "index.html": {
+    "resources": [
+      "js/mui.min.js",
+      "fonts/mui.ttf",
+      "css/mui.min.css",
+      "img/cbd.jpg",
+      "js/template.js"
+    ],
+    "refer": [
+      "search.html",
+      "bookinfo.html"
+    ]
+  },
+  "bookinfo.html": {
+    "resources": [
+      "js/mui.min.js",
+      "css/mui.min.css",
+      "fonts/mui.ttf",
+      "js/template.js"
+    ],
+    "refer": [
+      "contentlist.html",
+      "reviewlist.html"
+    ]
+  },
+  "search.html": {
+    "resources": [
+      "js/mui.min.js",
+      "fonts/mui.ttf",
+      "css/mui.min.css",
+      "js/template.js"
+    ],
+    "refer": [
+      "bookinfo.html"
+    ]
+  },
+  "contentlist.html": {
+    "resources": [
+      "js/mui.min.js",
+      "fonts/mui.ttf",
+      "css/mui.min.css",
+      "js/template.js"
+    ],
+    "refer": []
+  },
+  "reviewlist.html": {
+    "resources": [
+      "js/mui.min.js",
+      "fonts/mui.ttf",
+      "css/mui.min.css",
+      "js/template.js"
+    ],
+    "refer": []
+  }
+}
